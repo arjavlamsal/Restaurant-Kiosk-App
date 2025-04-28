@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:RestaurantAppFullImp.Project.Models"
+             xmlns:local="clr-namespace:RestaurantAppFullImp.Project.Views"
+             x:Class="RestaurantAppFullImp.Project.Views.MenuDashboardPage"
+             Title="Menu Dashboard">
+
+    <Grid RowDefinitions="Auto, Auto, *, Auto">
+        <!-- Page Header -->
+        <VerticalStackLayout Grid.Row="0" Padding="10" BackgroundColor="#f0f0f0">
+            <Label Text="Menu Dashboard" FontSize="24" FontAttributes="Bold" HorizontalOptions="Center" Margin="0,0,0,10"/>
+            <Label Text="Manage your restaurant menu items" FontSize="16" HorizontalOptions="Center"/>
+            <Button Text="Back to Main Menu" Clicked="OnBackToMenuClicked" Margin="0,10,0,0"/>
+        </VerticalStackLayout>
+
+        <!-- Filter Controls -->
+        <Grid Grid.Row="1" ColumnDefinitions="*, *, *" Padding="10" BackgroundColor="#e0e0e0">
+            <!-- Search Bar -->
+            <VerticalStackLayout Grid.Column="0">
+                <Label Text="Search by Name" FontSize="14"/>
+                <SearchBar x:Name="searchBar" 
+                            Placeholder="Enter item name" 
+                            TextChanged="OnSearchTextChanged"
+                            SearchCommand="{Binding SearchCommand}"
+                            SearchCommandParameter="{Binding Text, Source={x:Reference searchBar}}"/>
+            </VerticalStackLayout>
+
+            <!-- Type Filter -->
+            <VerticalStackLayout Grid.Column="1">
+                <Label Text="Filter by Type" FontSize="14"/>
+                <Picker x:Name="typePicker" 
+                        SelectedIndexChanged="OnTypeFilterChanged"
+                        Title="Select Type">
+                    <Picker.Items>
+                        <x:String>All Types</x:String>
+                        <x:String>ENTREE</x:String>
+                        <x:String>SIDE</x:String>
+                        <x:String>DRINK</x:String>
+                        <x:String>DESSERT</x:String>
+                        <x:String>APPETIZER</x:String>
+                    </Picker.Items>
+                    <Picker.SelectedIndex>0</Picker.SelectedIndex>
+                </Picker>
+            </VerticalStackLayout>
+
+            <!-- Size Filter -->
+            <VerticalStackLayout Grid.Column="2">
+                <Label Text="Filter by Size Options" FontSize="14"/>
+                <Picker x:Name="sizePicker" 
+                        SelectedIndexChanged="OnSizeFilterChanged"
+                        Title="Size Options">
+                    <Picker.Items>
+                        <x:String>All Items</x:String>
+                        <x:String>Has Size Options</x:String>
+                        <x:String>No Size Options</x:String>
+                    </Picker.Items>
+                    <Picker.SelectedIndex>0</Picker.SelectedIndex>
+                </Picker>
+            </VerticalStackLayout>
+        </Grid>
+
+        <!-- Menu Items List -->
+        <RefreshView Grid.Row="2" 
+                     IsRefreshing="{Binding IsRefreshing}" 
+                     Command="{Binding RefreshCommand}">
+            <CollectionView x:Name="menuItemsCollection"
+                         SelectionMode="Single"
+                         SelectionChanged="OnItemSelected">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:MenuItem">
+                        <SwipeView>
+                            <SwipeView.RightItems>
+                                <SwipeItems>
+                                    <SwipeItem Text="Edit" 
+                                             BackgroundColor="Orange"
+                                             Command="{Binding Source={RelativeSource AncestorType={x:Type local:MenuDashboardPage}}, Path=EditCommand}"
+                                             CommandParameter="{Binding .}"/>
+                                    <SwipeItem Text="Delete" 
+                                             BackgroundColor="Red"
+                                             Command="{Binding Source={RelativeSource AncestorType={x:Type local:MenuDashboardPage}}, Path=DeleteCommand}"
+                                             CommandParameter="{Binding .}"/>
+                                </SwipeItems>
+                            </SwipeView.RightItems>
+                            <Grid Padding="10" ColumnDefinitions="Auto, *, Auto">
+                                <Label Grid.Column="0" Text="{Binding DatabaseID}" VerticalOptions="Center"/>
+                                <VerticalStackLayout Grid.Column="1" Margin="10,0">
+                                    <Label Text="{Binding ItemName}" FontSize="16" FontAttributes="Bold"/>
+                                    <HorizontalStackLayout>
+                                        <Label Text="{Binding Type}" Margin="0,0,5,0"/>
+                                        <Label Text="(Has Size Options)" IsVisible="{Binding HasSize}"/>
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+                                <Label Grid.Column="2" Text="{Binding ItemPrice, StringFormat='${0:F2}'}" FontAttributes="Bold" VerticalOptions="Center"/>
+                            </Grid>
+                        </SwipeView>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
+                        <Label Text="No menu items found" FontSize="18" HorizontalTextAlignment="Center"/>
+                        <Label Text="Try a different filter or add new items" FontSize="14" HorizontalTextAlignment="Center"/>
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+            </CollectionView>
+        </RefreshView>
+
+        <!-- Footer with Action Buttons -->
+        <Grid Grid.Row="3" ColumnDefinitions="*, *" Padding="10" BackgroundColor="#f0f0f0">
+            <Button Grid.Column="0" Text="Add New Item" Clicked="OnAddItemClicked"/>
+            <Button Grid.Column="1" Text="Clear Filters" Clicked="OnClearFiltersClicked"/>
+        </Grid>
+    </Grid>
+</ContentPage>
